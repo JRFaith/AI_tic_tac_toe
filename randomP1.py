@@ -1,10 +1,12 @@
-import random
+from random import choice
 
 #not a smart player, but it gets the job done
-class Random_Player:
+class random_player:
 	def __init__(self):
-		self.occupied = []
+		self.occupied = False
 
 
-	def select_move():
-		selection = randint(0,8)
+	def select_move(self, board):
+		pick = choice(board)
+		# print("O: " + str(pick))
+		return pick
