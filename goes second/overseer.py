@@ -68,27 +68,24 @@ class Overseer:
 
 	def game_loop_learn(self):
 		#first run belongs to the AI
-		board_info = self.get_open()
-		pick = self.ai_plr.population_memory(board_info, True)
-		self.board[pick] = 'X'
 		self.pick += 1
 		while(True):
 			board_info = self.get_open()
 			if (self.pick % 2 == 0): #AI goves
-				pick = self.ai_plr.population_memory(board_info, False)
-				self.board[pick] = 'X'
+				pick = self.ai_plr.population_memory(board_info, self.pick <= 2)
+				self.board[pick] = 'O'
 			else: #random goes
 				pick = self.rnd_plr.select_move(board_info)
-				self.board[pick] = 'O'
+				self.board[pick] = 'X'
 				self.ai_plr.set_opps_pos(pick)
 			self.pick += 1
 			mark = self.board[pick]
 			if(self.check_for_win(self.board, mark)):
 				# print(mark + " wins!")
 				if (mark == "X"):
-					return 1
-				elif (mark == "O"):
 					return 2
+				elif (mark == "O"):
+					return 1
 			elif(self.check_for_draw(self.board)):
 				# print("Draw")
 				return 0
@@ -96,21 +93,18 @@ class Overseer:
 	#the AI is overwrwiting moves by going first
 	def game_loop_play(self):
 		board_info = self.get_open()
-		pick = self.ai_plr.play_game(board_info, True)
-		self.board[pick] = 'X'
-		print("X picked: " + str(pick))
 		# self.print_board()
 		self.pick += 1
 		while(True):
 			board_info = self.get_open()
 			self.print_board()
 			if (self.pick % 2 == 0): #AI goves
-				pick = self.ai_plr.play_game(board_info, False)
-				self.board[pick] = 'X'
-				print("X picked: " + str(pick))
+				pick = self.ai_plr.play_game(board_info, self.pick <= 2)
+				self.board[pick] = 'O'
+				print("O picked: " + str(pick))
 			else: #random goes
 				pick = int(self.ask_for_selection())
-				self.board[pick] = 'O'
+				self.board[pick] = 'X'
 				self.ai_plr.set_opps_pos(pick)
 			self.pick += 1
 			mark = self.board[pick]
@@ -118,10 +112,9 @@ class Overseer:
 				self.print_board()
 				print(mark + " wins!")
 				if (mark == "X"):
-					return 1
-				elif (mark == "O"):
-
 					return 2
+				elif (mark == "O"):
+					return 1
 			elif(self.check_for_draw(self.board)):
 				self.print_board()
 				print("Draw")
@@ -138,33 +131,24 @@ results = [0, 0, 0]
 board = Overseer(rnd_player, ai_player)
 # board.print_board()
 res = board.game_loop_learn()
-ai_player.finalize_score(res)
+ai_player.finalize_score(res, False)
 results[res] += 1
-for x in range(2,100000):
+for x in range(2,200000):
 	if (x % 10000 == 0):
 		print("Game: " + str(x))
 	board = Overseer(rnd_player, ai_player)
 	# board.print_board()
 	res = board.game_loop_learn()
-	ai_player.finalize_score(res)
+	ai_player.finalize_score(res, False)
 	results[res] += 1
 
 ai_player.start_mem_connection()
-print(ai_player.dt_array[0].wins)
-print(ai_player.dt_array[1].wins)
-print(ai_player.dt_array[2].wins)
-print(ai_player.dt_array[3].wins)
-print(ai_player.dt_array[4].wins)
-print(ai_player.dt_array[5].wins)
-print(ai_player.dt_array[6].wins)
-print(ai_player.dt_array[7].wins)
-print(ai_player.dt_array[8].wins)
 
 while (True):
 	board = Overseer(None, ai_player)
 	res = board.game_loop_play()
 	print(ai_player.last_move.position)
-	ai_player.finalize_score(res)
+	ai_player.finalize_score(res, True)
 	results[res] += 1
 
 	reply = input("Do you want to continue? (Y | N): ")
