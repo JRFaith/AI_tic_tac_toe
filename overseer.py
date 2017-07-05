@@ -140,7 +140,7 @@ board = Overseer(rnd_player, ai_player)
 res = board.game_loop_learn()
 ai_player.finalize_score(res)
 results[res] += 1
-for x in range(2,100000):
+for x in range(2,500000):
 	if (x % 10000 == 0):
 		print("Game: " + str(x))
 	board = Overseer(rnd_player, ai_player)
@@ -150,15 +150,6 @@ for x in range(2,100000):
 	results[res] += 1
 
 ai_player.start_mem_connection()
-print(ai_player.dt_array[0].wins)
-print(ai_player.dt_array[1].wins)
-print(ai_player.dt_array[2].wins)
-print(ai_player.dt_array[3].wins)
-print(ai_player.dt_array[4].wins)
-print(ai_player.dt_array[5].wins)
-print(ai_player.dt_array[6].wins)
-print(ai_player.dt_array[7].wins)
-print(ai_player.dt_array[8].wins)
 
 while (True):
 	board = Overseer(None, ai_player)

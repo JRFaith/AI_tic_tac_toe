@@ -159,7 +159,7 @@ board = Overseer(rnd_player, ai_player)
 res = board.game_loop_learn()
 ai_player.finalize_score(res, False)
 results[res] += 1
-for x in range(2,600007):
+for x in range(2,500007):
 	if (x % 10000 == 0):
 		print("Game: " + str(x))
 	board = Overseer(rnd_player, ai_player)
