@@ -1,6 +1,7 @@
 from ttt_ai import *
 from randomP1 import *
 from decision_tree import *
+import time
 
 class Overseer:
 	def __init__(self, rnd_plr, ai_plr):
@@ -66,16 +67,17 @@ class Overseer:
 		# print(result)
 		return result
 
-	def game_loop_learn(self):
+	def game_loop_learn(self, play_order):
 		#first run belongs to the AI
+		board_info = self.get_open()
 		self.pick += 1
 		while(True):
 			board_info = self.get_open()
 			if (self.pick % 2 == 0): #AI goves
-				pick = self.ai_plr.population_memory(board_info, self.pick <= 2)
+				pick = self.ai_plr.populate_memory(board_info, self.pick <= 2, play_order)
 				self.board[pick] = 'O'
 			else: #random goes
-				pick = self.rnd_plr.select_move(board_info)
+				pick = rnd_player.select_move(board_info)
 				self.board[pick] = 'X'
 				self.ai_plr.set_opps_pos(pick)
 			self.pick += 1
@@ -90,34 +92,8 @@ class Overseer:
 				# print("Draw")
 				return 0
 
-
-	#Entirely superfluous, just here to really test the AI to the limit
-	#rushes through a few hundred thousand games with the brain connected
-	#to weed up any bad paths.
-	def game_loop_refine(self):
-		board_info = self.get_open()
-		self.pick += 1
-		while(True):
-			board_info = self.get_open()
-			if (self.pick % 2 == 0): #AI goves
-				pick = self.ai_plr.play_game(board_info, self.pick <= 2)
-				self.board[pick] = 'O'
-			else: #random goes
-				pick = self.rnd_plr.select_move(board_info)
-				self.board[pick] = 'X'
-				self.ai_plr.set_opps_pos(pick)
-			self.pick += 1
-			mark = self.board[pick]
-			if(self.check_for_win(self.board, mark)):
-				if (mark == "X"):
-					return 2
-				elif (mark == "O"):
-					return 1
-			elif(self.check_for_draw(self.board)):
-				return 0
-
 	#the AI is overwrwiting moves by going first
-	def game_loop_play(self):
+	def game_loop_play(self, play_order):
 		board_info = self.get_open()
 		# self.print_board()
 		self.pick += 1
@@ -125,7 +101,9 @@ class Overseer:
 			board_info = self.get_open()
 			self.print_board()
 			if (self.pick % 2 == 0): #AI goves
-				pick = self.ai_plr.play_game(board_info, self.pick <= 2)
+				print("AI is thinking")
+				time.sleep(1)
+				pick = self.ai_plr.play_game_second(board_info, self.pick <= 2)
 				self.board[pick] = 'O'
 				print("O picked: " + str(pick))
 			else: #random goes
@@ -156,40 +134,35 @@ results = [0, 0, 0]
 # print("Game: 1")
 board = Overseer(rnd_player, ai_player)
 # board.print_board()
-res = board.game_loop_learn()
-ai_player.finalize_score(res, False)
+res = board.game_loop_learn(False)
+ai_player.finalize_score(res)
 results[res] += 1
-for x in range(2,600007):
+for x in range(2,700000):
 	if (x % 10000 == 0):
 		print("Game: " + str(x))
 	board = Overseer(rnd_player, ai_player)
 	# board.print_board()
-	res = board.game_loop_learn()
-	ai_player.finalize_score(res, False)
+	res = board.game_loop_learn(False)
+	ai_player.finalize_score(res)
 	results[res] += 1
 
-ai_player.start_mem_connection()
 
-print("Now refining the AI, removing any useless paths")
-results = [0, 0, 0]
-for x in range(0,100000):
-	board = Overseer(rnd_player, ai_player)
-	res = board.game_loop_refine()
-	ai_player.finalize_score(res, True)
-	results[res] += 1
+# for x in range(2,600000):
+# 	if (x % 10000 == 0):
+# 		print("Game: " + str(x))
+# 	board = Overseer(rnd_player, ai_player)
+# 	# board.print_board()
+# 	res = board.game_loop_learn(False)
+# 	ai_player.finalize_score(res)
+# 	results[res] += 1
 
-print("Final results after refinement")
-print("Wins: " + str(results[1]))
-print("Draws: " + str(results[0]))
-print("Losses: " + str(results[2]))
-print((results[0] + results[1])/1000)
-print()
-print("Time to play")
+ai_player.start_mem_connection(False)
 
 while (True):
 	board = Overseer(None, ai_player)
-	res = board.game_loop_play()
-	ai_player.finalize_score(res, True)
+	res = board.game_loop_play(True)
+	print(ai_player.last_move.position)
+	ai_player.finalize_score(res)
 	results[res] += 1
 
 	reply = input("Do you want to continue? (Y | N): ")
@@ -199,5 +172,9 @@ while (True):
 		break
 
 
+# print("Wins: " + str(results[1]))
+# print("Draws: " + str(results[0]))
+# print("Losses: " + str(results[2]))
+# print((results[0] + results[1])/10000)
 
 # board = Overseer(None, ai_player)
